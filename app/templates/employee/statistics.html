@@ -1,0 +1,54 @@
+<!doctype html>
+{% extends 'base.html' %}
+
+{% block title %}Статистика — MashUp{% endblock %}
+
+{% block content %}
+<section class="page-head compact">
+    <p class="eyebrow">АНАЛИТИКА МАГАЗИНА</p>
+    <h1>Цифры и <em>музыка.</em></h1>
+</section>
+
+<section class="section">
+    <!-- Блок 1: Лидеры продаж -->
+    <h2>Лидеры продаж текущего года</h2>
+    <div class="admin-table">
+        {% for item in leaders %}
+        <div class="admin-row">
+            <b>{{ item.product_title }}</b>
+            <span>Текущий год</span>
+            <strong>{{ item.quantity_sold }} шт.</strong>
+        </div>
+        {% else %}
+        <p>В текущем году завершённых продаж пока нет.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Блок 2: Продажи по годам -->
+    <h2 class="subhead">Продажи по годам</h2>
+    <div class="admin-table">
+        {% for s in sales %}
+        <div class="admin-row">
+            <b>{{ s.product_title }}</b>
+            <span>{{ s.sales_year }}</span>
+            <strong>{{ s.quantity_sold }} шт.</strong>
+        </div>
+        {% else %}
+        <p>Завершённых продаж пока нет. Для демонстрации завершите заказ из панели сотрудника.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Блок 3: Остатки на складе -->
+    <h2 class="subhead">Остатки на складе</h2>
+    <div class="admin-table">
+        {% for p in stock %}
+        <div class="admin-row">
+            <b>{{ p.title }}</b>
+            <span>{{ p.catalog_number }}</span>
+            <strong>{{ p.stock }} шт.</strong>
+        </div>
+        {% endfor %}
+        <!-- Примечание: здесь нет {% else %}, поэтому если товаров нет, просто ничего не выведется -->
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,59 @@
+<!doctype html>
+{% extends 'base.html' %}
+
+{% block title %}Управление — MashUp{% endblock %}
+
+{% block content %}
+<section class="page-head compact">
+    <p class="eyebrow">РАБОЧЕЕ ПРОСТРАНСТВО</p>
+    <h1>Панель <em>сотрудника.</em></h1>
+    
+    <div class="admin-actions">
+        <a class="button" href="{{ url_for('admin.product_new') }}">＋ Добавить товар</a>
+        <a class="button button-outline" href="{{ url_for('admin.products') }}">Каталог товаров</a>
+        <a class="button button-outline" href="{{ url_for('admin.statistics') }}">Статистика</a>
+    </div>
+</section>
+
+<section class="section">
+    <!-- Блок статистики -->
+    <div class="stats-grid">
+        <div>
+            <small>Активные товары</small>
+            <strong>{{ stats.products }}</strong>
+        </div>
+        <div>
+            <small>Открытые заказы</small>
+            <strong>{{ stats.orders }}</strong>
+        </div>
+        <div>
+            <small>Товаров на складе</small>
+            <strong>{{ stats.stock }}</strong>
+        </div>
+    </div>
+
+    <h2>Последние заказы</h2>
+    
+    <!-- Блок заказов -->
+    <div class="admin-table">
+        {% for o in orders %}
+        <div class="admin-row">
+            <span>#{{ o.order_id }} · {{ o.customer_name }}</span>
+            <span>{{ o.created_at }}</span>
+            <b>{{ money(o.total) }}</b>
+            
+            <form method="post" action="{{ url_for('admin.order_status', order_id=o.order_id) }}">
+                <select name="status">
+                    <option value="processing" {% if o.status == 'processing' %}selected{% endif %}>В обработке</option>
+                    <option value="completed" {% if o.status == 'completed' %}selected{% endif %}>Завершён</option>
+                    <option value="cancelled" {% if o.status == 'cancelled' %}selected{% endif %}>Отменён</option>
+                </select>
+                <button class="small-button">Сохранить</button>
+            </form>
+        </div>
+        {% else %}
+        <p>Заказов пока нет.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}MashUp — музыкальный магазин{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Шапка сайта -->
+    <header class="topbar">
+        <a class="brand" href="{{ url_for('main.index') }}">Mash<span>Up</span></a>
+        
+        <nav>
+            <a href="{{ url_for('catalog.index') }}">Каталог</a>
+            <a href="{{ url_for('shop.cart') }}">Корзина</a>
+            
+            {% if current_user %}
+                <!-- Ссылки для авторизованных пользователей -->
+                <a href="{{ url_for('shop.wishlist') }}">Избранное</a>
+                <a href="{{ url_for('shop.orders') }}">Заказы</a>
+                
+                <!-- Ссылка для сотрудников -->
+                {% if current_user.role_name == 'employee' %}
+                    <a href="{{ url_for('admin.dashboard') }}">Управление</a>
+                {% endif %}
+                
+                <form class="logout-form" method="post" action="{{ url_for('auth.logout') }}">
+                    <button type="submit" class="nav-link-button">Выйти</button>
+                </form>
+                
+            {% else %}
+                <!-- Ссылки для гостей -->
+                <a href="{{ url_for('auth.login') }}">Войти</a>
+                <a class="nav-cta" href="{{ url_for('auth.register') }}">Регистрация</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <!-- Всплывающие уведомления (например, "Товар добавлен") -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Основной контент страницы (сюда вставляются остальные шаблоны) -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Подвал сайта -->
+    <footer>
+        <a class="brand" href="{{ url_for('main.index') }}">Mash<span>Up</span></a>
+        <span>Музыка ближе · локальная версия</span>
+        <span>Учебный проект</span>
+    </footer>
+
+</body>
+</html>

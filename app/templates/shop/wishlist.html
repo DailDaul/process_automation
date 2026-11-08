@@ -1,0 +1,40 @@
+<!doctype html>
+{% extends 'base.html' %}
+
+{% block title %}Избранное — MashUp{% endblock %}
+
+{% block content %}
+<section class="page-head compact">
+    <p class="eyebrow">СОХРАНИ НА ПОТОМ</p>
+    <h1>Избранное<span>.</span></h1>
+</section>
+
+<section class="section">
+    <div class="product-grid">
+        {% for p in products %}
+        <article class="product-card">
+            <a class="cover" href="{{ url_for('catalog.detail', product_id=p.product_id) }}">
+                <strong>{{ p.title[:2]|upper }}</strong>
+            </a>
+            
+            <div class="product-info">
+                <h3>
+                    <a href="{{ url_for('catalog.detail', product_id=p.product_id) }}">{{ p.title }}</a>
+                </h3>
+                <b>{{ money(p.retail_price) }}</b>
+            </div>
+            
+            <form method="post" action="{{ url_for('shop.wishlist_toggle', product_id=p.product_id) }}">
+                <button class="text-link">Убрать из избранного ×</button>
+            </form>
+        </article>
+        {% else %}
+        <div class="empty-state">
+            <h2>Здесь пока тихо</h2>
+            <p>Добавляй понравившиеся издания в избранное.</p>
+            <a class="button" href="{{ url_for('catalog.index') }}">В каталог</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

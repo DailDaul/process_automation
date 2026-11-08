@@ -1,0 +1,92 @@
+<!doctype html>
+{% extends 'base.html' %}
+
+{% block title %}Каталог — MashUp{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <p class="eyebrow">КОЛЛЕКЦИЯ MASHUP</p>
+    <h1>Музыка для<br><em>твоей полки.</em></h1>
+    <p>Ищи издания, исследуй форматы и находи то, что хочется переслушивать.</p>
+</section>
+
+<section class="catalog-layout">
+    <!-- Блок фильтров -->
+    <form class="filters" method="get">
+        <h3>Найти своё</h3>
+        
+        <label>
+            Название или ключевое слово
+            <input name="q" value="{{ filters.q }}" placeholder="Например, jazz">
+        </label>
+        
+        <label>
+            Формат
+            <select name="media">
+                <option value="">Все форматы</option>
+                {% for m in media_types %}
+                <option value="{{ m.media_type_id }}" {% if filters.media|string == m.media_type_id|string %}selected{% endif %}>
+                    {{ m.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+        
+        <label>
+            Год выпуска
+            <input name="year" value="{{ filters.year }}" placeholder="2024" inputmode="numeric">
+        </label>
+        
+        <label>
+            Ансамбль
+            <input name="artist" value="{{ filters.artist }}" placeholder="Название ансамбля">
+        </label>
+        
+        <button class="button" type="submit">Применить фильтры</button>
+        <a class="reset-link" href="{{ url_for('catalog.index') }}">Сбросить</a>
+    </form>
+
+    <!-- Блок результатов -->
+    <div>
+        <div class="results-top">
+            <span>Найдено изданий: <b>{{ products|length }}</b></span>
+        </div>
+        
+        <div class="product-grid">
+            {% for p in products %}
+            <article class="product-card">
+                <a class="cover cover-{{ (loop.index0 % 3) + 1 }}" href="{{ url_for('catalog.detail', product_id=p.product_id) }}">
+                    <span>{{ p.media_name }}</span>
+                    <strong>{{ p.title[:2]|upper }}</strong>
+                </a>
+                
+                <div class="product-info">
+                    <div>
+                        <h3>
+                            <a href="{{ url_for('catalog.detail', product_id=p.product_id) }}">{{ p.title }}</a>
+                        </h3>
+                        <p>
+                            {{ p.catalog_number }}
+                            {% if p.artist_name %} · {{ p.artist_name }}{% endif %}
+                        </p>
+                        <small>
+                            {% if p.stock > 0 %}
+                                В наличии: {{ p.stock }}
+                            {% else %}
+                                Нет в наличии
+                            {% endif %}
+                        </small>
+                    </div>
+                    <b>{{ money(p.retail_price) if p.retail_price is not none else 'Цена уточняется' }}</b>
+                </div>
+            </article>
+            {% else %}
+            <div class="empty-state">
+                <h3>Пока ничего не найдено</h3>
+                <p>Попробуй изменить запрос или сбросить фильтры.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

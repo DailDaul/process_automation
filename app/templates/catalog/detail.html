@@ -1,0 +1,83 @@
+<!doctype html>
+{% extends 'base.html' %}
+
+{% block title %}{{ product.title }} — MashUp{% endblock %}
+
+{% block content %}
+<div class="breadcrumbs">
+    <a href="{{ url_for('catalog.index') }}">Каталог</a> / {{ product.title }}
+</div>
+
+<section class="detail-layout">
+    <div class="detail-cover cover-2">
+        <span>{{ product.media_name }}</span>
+        <strong>{{ product.title[:2]|upper }}</strong>
+    </div>
+    
+    <div class="detail-copy">
+        <p class="eyebrow">{{ product.media_name }} · {{ product.catalog_number }}</p>
+        <h1>{{ product.title }}</h1>
+        <p class="detail-description">{{ product.description or 'Описание этого издания скоро появится.' }}</p>
+        
+        <div class="detail-price">
+            {{ money(product.retail_price) if product.retail_price is not none else 'Цена уточняется' }}
+        </div>
+        
+        <p class="stock">
+            {% if product.stock > 0 %}
+                В наличии: {{ product.stock }}
+            {% else %}
+                Временно нет в наличии
+            {% endif %}
+        </p>
+        
+        <div class="detail-actions">
+            <form method="post" action="{{ url_for('shop.cart_add', product_id=product.product_id) }}">
+                <input type="hidden" name="quantity" value="1">
+                <button class="button" {% if product.stock <= 0 %}disabled{% endif %}>Добавить в корзину</button>
+            </form>
+            
+            {% if current_user %}
+            <form method="post" action="{{ url_for('shop.wishlist_toggle', product_id=product.product_id) }}">
+                <button class="button button-outline">♡ В избранное</button>
+            </form>
+            {% endif %}
+        </div>
+        
+        <dl class="specs">
+            <div>
+                <dt>Каталожный номер</dt>
+                <dd>{{ product.catalog_number }}</dd>
+            </div>
+            <div>
+                <dt>Дата выпуска</dt>
+                <dd>{{ product.release_date or 'Не указана' }}</dd>
+            </div>
+        </dl>
+    </div>
+</section>
+
+<section class="section">
+    <p class="eyebrow">СОДЕРЖАНИЕ ИЗДАНИЯ</p>
+    <h2>Трек-лист</h2>
+    
+    <div class="track-list">
+        {% for t in tracks %}
+        <div>
+            <span>{{ '%02d'|format(t.track_number) }}</span>
+            <b>{{ t.track_title or t.composition_title }}</b>
+            <small>{{ t.ensemble_name or 'Исполнитель не указан' }}</small>
+            <time>
+                {% if t.duration_seconds %}
+                    {{ (t.duration_seconds // 60)|int }}:{{ '%02d'|format(t.duration_seconds % 60) }}
+                {% else %}
+                    —
+                {% endif %}
+            </time>
+        </div>
+        {% else %}
+        <p>Информация о композициях пока не добавлена.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

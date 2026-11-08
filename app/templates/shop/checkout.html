@@ -1,0 +1,37 @@
+<!doctype html>
+{% extends 'base.html' %}
+
+{% block title %}Оформление заказа — MashUp{% endblock %}
+
+{% block content %}
+<section class="auth-wrap">
+    <p class="eyebrow">ПОСЛЕДНИЙ ШАГ</p>
+    <h1>Оформление <em>заказа.</em></h1>
+    
+    <div class="order-summary">
+        <b>В корзине {{ items|length }} поз.</b>
+        <strong>{{ money(total) }}</strong>
+    </div>
+
+    <form class="form-card" method="post">
+        <label>
+            Имя получателя
+            <input name="customer_name" maxlength="200" value="{{ current_user.username }}" required>
+        </label>
+        
+        <label>
+            Телефон
+            <input name="customer_phone" maxlength="30" value="{{ current_user.phone }}" required>
+        </label>
+        
+        <label>
+            Электронная почта
+            <input type="email" name="customer_email" maxlength="254" value="{{ current_user.email or '' }}">
+        </label>
+        
+        <button class="button">Подтвердить заказ · {{ money(total) }}</button>
+        
+        <p class="muted">Это локальная демонстрация: оплата онлайн не подключена.</p>
+    </form>
+</section>
+{% endblock %}

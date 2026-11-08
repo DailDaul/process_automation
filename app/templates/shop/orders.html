@@ -1,0 +1,39 @@
+<!doctype html>
+{% extends 'base.html' %}
+
+{% block title %}Мои заказы — MashUp{% endblock %}
+
+{% block content %}
+<section class="page-head compact">
+    <p class="eyebrow">ТВОЯ ИСТОРИЯ</p>
+    <h1>Мои заказы<span>.</span></h1>
+</section>
+
+<section class="section">
+    {% for o in orders %}
+    <article class="order-card">
+        <div>
+            <b>Заказ №{{ o.order_id }}</b>
+            <small>{{ o.created_at }}</small>
+        </div>
+        
+        <!-- Перевод системного статуса на русский язык -->
+        <span class="status status-{{ o.status }}">
+            {{ {
+                'new': 'Новый',
+                'processing': 'В обработке',
+                'completed': 'Завершён',
+                'cancelled': 'Отменён'
+            }[o.status] }}
+        </span>
+        
+        <strong>{{ money(o.total) }}</strong>
+    </article>
+    {% else %}
+    <div class="empty-state">
+        <h2>Заказов пока нет</h2>
+        <a class="button" href="{{ url_for('catalog.index') }}">Перейти в каталог</a>
+    </div>
+    {% endfor %}
+</section>
+{% endblock %}

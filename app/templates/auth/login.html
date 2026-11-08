@@ -1,0 +1,27 @@
+<!doctype html>
+{% extends 'base.html' %}
+
+{% block title %}Вход — MashUp{% endblock %}
+
+{% block content %}
+<section class="auth-wrap">
+    <p class="eyebrow">СНОВА РАДЫ ТЕБЯ ВИДЕТЬ</p>
+    <h1>Войти в <em>MashUp.</em></h1>
+    
+    <form class="form-card" method="post">
+        <label>
+            Логин, телефон или почта
+            <input name="identity" required autocomplete="username">
+        </label>
+        
+        <label>
+            Пароль
+            <input type="password" name="password" required autocomplete="current-password">
+        </label>
+        
+        <button class="button">Войти</button>
+        
+        <p>Ещё нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a></p>
+    </form>
+</section>
+{% endblock %}

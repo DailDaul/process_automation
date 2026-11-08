@@ -1,0 +1,37 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables and secrets
+.env
+.env.*
+
+# SQLite databases and temporary files
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+
+# Backups
+backups/*
+!backups/.gitkeep
+
+# Runtime instance files
+instance/*
+!instance/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

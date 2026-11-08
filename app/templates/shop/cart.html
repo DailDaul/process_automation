@@ -1,0 +1,60 @@
+<!doctype html>
+{% extends 'base.html' %}
+
+{% block title %}Корзина — MashUp{% endblock %}
+
+{% block content %}
+<section class="page-head compact">
+    <p class="eyebrow">ТВОЙ ВЫБОР</p>
+    <h1>Корзина<span>.</span></h1>
+</section>
+
+<section class="section cart-section">
+    {% if items %}
+        <!-- Форма для обновления количества товаров -->
+        <form method="post" action="{{ url_for('shop.cart_update') }}">
+            <div class="cart-list">
+                {% for i in items %}
+                <div class="cart-row">
+                    <div class="mini-cover">M</div>
+                    
+                    <div class="cart-name">
+                        <b>{{ i.title }}</b>
+                        <small>{{ i.catalog_number }} · {{ money(i.retail_price) }}</small>
+                    </div>
+                    
+                    <input class="qty" type="number" name="{{ i.product_id }}" value="{{ i.quantity }}" min="0" max="99">
+                    
+                    <b>{{ money(i.line_total) }}</b>
+                    
+                    {% if not i.available %}
+                    <small class="stock-warning">Недостаточно на складе: {{ i.available_stock }} шт.</small>
+                    {% endif %}
+                    
+                    <!-- Кнопка удаления (отправляет форму на другой URL) -->
+                    <button class="icon-button" formaction="{{ url_for('shop.cart_remove', product_id=i.product_id) }}" formmethod="post" formnovalidate>
+                        ×
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="button button-outline">Обновить корзину</button>
+        </form>
+
+        <!-- Блок с итоговой суммой и оформлением -->
+        <div class="cart-total">
+            <span>Итого</span>
+            <strong>{{ money(total) }}</strong>
+        </div>
+        <a class="button" href="{{ url_for('shop.checkout') }}">Перейти к оформлению</a>
+
+    {% else %}
+        <!-- Блок, если корзина пуста -->
+        <div class="empty-state">
+            <h2>Корзина пока пуста</h2>
+            <p>Самое время найти что-нибудь особенное.</p>
+            <a class="button" href="{{ url_for('catalog.index') }}">Открыть каталог</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
