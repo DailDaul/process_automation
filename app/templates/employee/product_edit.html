@@ -35,6 +35,7 @@
         </label>
         
         <button class="button">Сохранить изменения</button>
+        <a class="text-link" href="{{ url_for('admin.product_tracks', product_id=product.product_id) }}">Управление трек-листом ↗</a>
         <a class="text-link" href="{{ url_for('admin.products') }}">Вернуться к каталогу</a>
     </form>
 </section>

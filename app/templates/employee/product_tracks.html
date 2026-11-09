@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Состав издания — MashUp{% endblock %}
+{% block content %}
+<section class="page-head compact">
+    <p class="eyebrow">УПРАВЛЕНИЕ КАТАЛОГОМ</p>
+    <h1>Трек-лист <em>издания.</em></h1>
+    <p>{{ product.title }} · {{ product.catalog_number }} · {{ product.media_name }}</p>
+    <div class="admin-actions">
+        <a class="button button-outline" href="{{ url_for('admin.product_edit', product_id=product.product_id) }}">К редактированию издания</a>
+        <a class="button button-outline" href="{{ url_for('admin.products') }}">К каталогу товаров</a>
+    </div>
+</section>
+
+<section class="section">
+    <h2>Состав издания</h2>
+    <div class="admin-table">
+        <div class="admin-row product-track-row">
+            <b>Диск / дорожка</b><b>Название</b><b>Ансамбль</b><b>Дата записи</b><b>Действие</b>
+        </div>
+        {% for t in tracks %}
+        <div class="admin-row product-track-row">
+            <strong>{{ t.disc_number }} / {{ t.track_number }}</strong>
+            <span>{{ t.track_title or t.composition_title }}</span>
+            <span>{{ t.ensemble_name or 'Не указан' }}</span>
+            <span>{{ t.recorded_at or '—' }}</span>
+            <form method="post" action="{{ url_for('admin.product_track_delete', product_id=product.product_id, track_id=t.product_performance_id) }}"
+                  onsubmit="return confirm('Удалить эту дорожку из состава издания?');">
+                <button class="small-button button-danger" type="submit">Удалить</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <h3>Трек-лист пока пуст</h3>
+            <p>Добавь первое исполнение, чтобы сформировать состав издания.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="section">
+    <h2>Добавить дорожку</h2>
+    {% if performances %}
+    <form class="form-card" method="post">
+        <label>Исполнение
+            <select name="performance_id" required>
+                <option value="">Выберите исполнение</option>
+                {% for p in performances %}
+                <option value="{{ p.performance_id }}">
+                    {{ p.composition_title }}{% if p.ensemble_name %} — {{ p.ensemble_name }}{% endif %}{% if p.recorded_at %} · {{ p.recorded_at }}{% endif %}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+        <div class="form-grid">
+            <label>Номер диска
+                <input type="number" name="disc_number" min="1" value="1" required>
+            </label>
+            <label>Номер дорожки
+                <input type="number" name="track_number" min="1" required>
+            </label>
+        </div>
+        <label>Название дорожки (необязательно)
+            <input name="track_title" maxlength="250" placeholder="Если отличается от названия произведения">
+        </label>
+        <label>Продолжительность в секундах (необязательно)
+            <input type="number" name="duration_seconds" min="1" placeholder="Например, 228">
+        </label>
+        <button class="button" type="submit">Добавить дорожку</button>
+    </form>
+    {% else %}
+    <div class="empty-state">
+        <h3>Нет доступных исполнений</h3>
+        <p>Сначала зарегистрируй музыкальное произведение и его исполнение.</p>
+        <a class="button" href="{{ url_for('admin.performance_new') }}">Добавить исполнение</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

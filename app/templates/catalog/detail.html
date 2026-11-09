@@ -64,7 +64,7 @@
     <div class="track-list">
         {% for t in tracks %}
         <div>
-            <span>{{ '%02d'|format(t.track_number) }}</span>
+            <span>{% if t.disc_number > 1 %}Диск {{ t.disc_number }} · {% endif %}{{ '%02d'|format(t.track_number) }}</span>
             <b>{{ t.track_title or t.composition_title }}</b>
             <small>{{ t.ensemble_name or 'Исполнитель не указан' }}</small>
             <time>

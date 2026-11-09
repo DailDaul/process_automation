@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Музыкальные ансамбли — MashUp{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <p class="eyebrow">СПРАВОЧНИК МУЗЫКАЛЬНЫХ КОЛЛЕКТИВОВ</p>
+  <h1>Музыкальные <em>ансамбли.</em></h1>
+  <p>Здесь можно добавлять и редактировать ансамбли, а также смотреть, сколько музыкальных произведений связано с каждым коллективом.</p>
+  <div class="admin-actions">
+    <a class="button" href="{{ url_for('admin.ensemble_new') }}">＋ Добавить ансамбль</a>
+    <a class="button button-outline" href="{{ url_for('admin.compositions') }}">Музыкальные произведения</a>
+    <a class="button button-outline" href="{{ url_for('admin.performances') }}">Исполнения</a>
+    <a class="button button-outline" href="{{ url_for('admin.dashboard') }}">Назад в управление</a>
+  </div>
+</section>
+<section class="section">
+  <div class="admin-table ensemble-table">
+    <div class="admin-row ensemble-row ensemble-header"><b>Ансамбль</b><b>Тип</b><b>Произведений</b><b>Исполнений</b><b>Действия</b></div>
+    {% for item in ensembles %}
+      <div class="admin-row ensemble-row">
+        <span><strong>{{ item.name }}</strong><small class="ensemble-years">{% if item.founded_year %}с {{ item.founded_year }}{% endif %}{% if item.disbanded_year %} по {{ item.disbanded_year }}{% endif %}</small></span>
+        <span>{{ item.ensemble_type }}</span>
+        <b>{{ item.works_count }}</b>
+        <span>{{ item.performances_count }}</span>
+        <span class="ensemble-actions"><a class="text-link" href="{{ url_for('admin.ensemble_detail', ensemble_id=item.ensemble_id) }}">Подробнее</a><a class="text-link" href="{{ url_for('admin.ensemble_edit', ensemble_id=item.ensemble_id) }}">Изменить</a></span>
+      </div>
+    {% else %}
+      <div class="empty-state"><h3>Ансамблей пока нет</h3><p>Добавьте первый музыкальный коллектив, чтобы начать наполнять справочник.</p></div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

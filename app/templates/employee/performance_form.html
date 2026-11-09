@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{% if performance %}Редактирование исполнения{% else %}Новое исполнение{% endif %} — MashUp{% endblock %}
+{% block content %}
+<section class="auth-wrap wide">
+  <p class="eyebrow">ИСТОРИЯ ИНТЕРПРЕТАЦИЙ</p>
+  <h1>{% if performance %}Изменить <em>исполнение.</em>{% else %}Новое <em>исполнение.</em>{% endif %}</h1>
+  {% if not compositions %}
+    <div class="empty-state"><h3>Сначала добавьте произведение</h3><p>Для регистрации исполнения необходимо хотя бы одно произведение в справочнике.</p><a class="button" href="{{ url_for('admin.composition_new') }}">Добавить произведение</a></div>
+  {% else %}
+  <form class="form-card" method="post">
+    <label>Музыкальное произведение<select name="composition_id" required><option value="">Выберите произведение</option>{% for item in compositions %}<option value="{{ item.composition_id }}" {% if request.form.get('composition_id', performance.composition_id if performance else '')|string == item.composition_id|string %}selected{% endif %}>{{ item.title }}</option>{% endfor %}</select></label>
+    <label>Ансамбль<select name="ensemble_id"><option value="">Не указан</option>{% for item in ensembles %}<option value="{{ item.ensemble_id }}" {% if request.form.get('ensemble_id', performance.ensemble_id if performance else selected_ensemble)|string == item.ensemble_id|string %}selected{% endif %}>{{ item.name }}</option>{% endfor %}</select></label>
+    <label>Дирижёр<select name="conductor_id"><option value="">Не указан</option>{% for item in musicians %}<option value="{{ item.musician_id }}" {% if request.form.get('conductor_id', performance.conductor_id if performance else '')|string == item.musician_id|string %}selected{% endif %}>{{ item.full_name }}</option>{% endfor %}</select><small class="muted">Список формируется из уже заведённых музыкантов.</small></label>
+    <label>Дата исполнения<input type="date" name="recorded_at" value="{{ request.form.get('recorded_at', performance.recorded_at if performance and performance.recorded_at else '') }}"></label>
+    <label>Место исполнения<input name="recording_location" maxlength="200" value="{{ request.form.get('recording_location', performance.recording_location if performance and performance.recording_location else '') }}" placeholder="Например, Большой зал консерватории"></label>
+    <label>Дополнительные сведения<textarea name="notes" rows="5">{{ request.form.get('notes', performance.notes if performance and performance.notes else '') }}</textarea></label>
+    <button class="button" type="submit">Сохранить</button>
+    <p><a href="{{ url_for('admin.performances') }}">Вернуться к списку исполнений</a></p>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

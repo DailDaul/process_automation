@@ -1,18 +1,6 @@
 -- MashUp: схема базы данных SQLite
 -- Версия: 1.0
 -- Назначение: локальное веб-приложение музыкального магазина.
---
--- ВАЖНО:
--- 1. При каждом соединении приложения с SQLite необходимо выполнять
---    PRAGMA foreign_keys = ON (одного включения в этом файле недостаточно).
--- 2. Денежные значения хранятся целыми числами в копейках.
--- 3. Даты событий (release_date, valid_from и т. п.) хранятся в формате YYYY-MM-DD.
---    Временные метки created_at/completed_at хранятся в формате YYYY-MM-DD HH:MM:SS.
--- 4. Строгую календарную проверку дат приложение дополнительно выполняет в Python.
--- 5. Остаток товара вычисляется по журналу inventory_movements, а не хранится в products.
--- 6. Продажи вычисляются по завершённым заказам и движениям типа sale.
--- 7. Физические экземпляры одного издания отдельно не регистрируются:
---    products описывает издание, а количество экземпляров определяется складскими движениями.
 
 PRAGMA foreign_keys = ON;
 PRAGMA journal_mode = WAL;
@@ -20,9 +8,7 @@ PRAGMA user_version = 1;
 
 BEGIN TRANSACTION;
 
--- ============================================================
 -- 1. ПОЛЬЗОВАТЕЛИ И РОЛИ
--- ============================================================
 
 CREATE TABLE roles (
     role_id INTEGER PRIMARY KEY,
@@ -52,9 +38,7 @@ CREATE TABLE users (
 
 CREATE INDEX idx_users_role_id ON users(role_id);
 
--- ============================================================
 -- 2. МУЗЫКАНТЫ, АНСАМБЛИ И МУЗЫКАЛЬНЫЕ ПРОИЗВЕДЕНИЯ
--- ============================================================
 
 CREATE TABLE musicians (
     musician_id INTEGER PRIMARY KEY,
@@ -124,8 +108,6 @@ CREATE TABLE ensemble_members (
 CREATE INDEX idx_ensemble_members_musician
     ON ensemble_members(musician_id);
 
--- Запрещает пересекающиеся периоды участия одного музыканта в одном ансамбле.
--- NULL в joined_at трактуется как очень ранняя дата, NULL в left_at — как открытый период.
 CREATE TRIGGER trg_ensemble_members_no_overlap_insert
 BEFORE INSERT ON ensemble_members
 WHEN EXISTS (
@@ -214,9 +196,7 @@ CREATE TABLE performance_musicians (
 CREATE INDEX idx_performance_musicians_musician
     ON performance_musicians(musician_id);
 
--- ============================================================
 -- 3. КАТАЛОГ ИЗДАНИЙ, ПРОИЗВОДИТЕЛИ И ПОСТАВЩИКИ
--- ============================================================
 
 CREATE TABLE media_types (
     media_type_id INTEGER PRIMARY KEY,
@@ -309,9 +289,7 @@ CREATE UNIQUE INDEX idx_product_one_preferred_supplier
     ON product_suppliers(product_id)
     WHERE is_preferred = 1;
 
--- ============================================================
 -- 4. ИСТОРИЯ РОЗНИЧНЫХ И ЗАКУПОЧНЫХ ЦЕН
--- ============================================================
 
 CREATE TABLE product_prices (
     price_id INTEGER PRIMARY KEY,
@@ -400,9 +378,7 @@ BEGIN
     SELECT RAISE(ABORT, 'Пересекаются периоды действия закупочных цен');
 END;
 
--- ============================================================
 -- 5. ЗАКАЗЫ, ПОЗИЦИИ ЗАКАЗОВ И СКЛАДСКИЕ ДВИЖЕНИЯ
--- ============================================================
 
 CREATE TABLE orders (
     order_id INTEGER PRIMARY KEY,
@@ -471,8 +447,6 @@ CREATE UNIQUE INDEX idx_inventory_one_sale_per_order_item
     ON inventory_movements(order_item_id)
     WHERE movement_type = 'sale';
 
--- Остаток = поступления + возвраты + корректировки вверх
--- минус продажи + списания + корректировки вниз.
 CREATE TRIGGER trg_inventory_prevent_negative_stock
 BEFORE INSERT ON inventory_movements
 WHEN NEW.movement_type IN ('sale', 'writeoff', 'adjustment_out')
@@ -493,8 +467,6 @@ BEGIN
     SELECT RAISE(ABORT, 'Недостаточно товара на складе');
 END;
 
--- Продажа должна относиться к позиции завершённого заказа;
--- товар и количество движения должны совпадать с позицией заказа.
 CREATE TRIGGER trg_inventory_validate_sale
 BEFORE INSERT ON inventory_movements
 WHEN NEW.movement_type = 'sale'
@@ -512,7 +484,6 @@ BEGIN
     SELECT RAISE(ABORT, 'Продажа должна соответствовать позиции завершённого заказа');
 END;
 
--- Возврат связывается с исходной позицией заказа, по которой ранее была продажа.
 CREATE TRIGGER trg_inventory_validate_return
 BEFORE INSERT ON inventory_movements
 WHEN NEW.movement_type = 'return'
@@ -535,7 +506,6 @@ BEGIN
     SELECT RAISE(ABORT, 'Возврат должен соответствовать ранее проданной позиции заказа и не превышать её количество');
 END;
 
--- Журнал складских движений неизменяем: исправления выполняются новыми движениями.
 CREATE TRIGGER trg_inventory_no_update
 BEFORE UPDATE ON inventory_movements
 BEGIN
@@ -548,9 +518,7 @@ BEGIN
     SELECT RAISE(ABORT, 'Удаление складских движений запрещено');
 END;
 
--- ============================================================
 -- 6. СПИСКИ ЖЕЛАЕМОГО
--- ============================================================
 
 CREATE TABLE wishlists (
     wishlist_id INTEGER PRIMARY KEY,
@@ -571,11 +539,8 @@ CREATE TABLE wishlist_items (
 CREATE INDEX idx_wishlist_items_product
     ON wishlist_items(product_id);
 
--- ============================================================
 -- 7. ПРЕДСТАВЛЕНИЯ ДЛЯ РАСЧЁТНЫХ ПОКАЗАТЕЛЕЙ
--- ============================================================
 
--- Текущий остаток каждого издания. Нулевой остаток также отображается.
 CREATE VIEW v_product_stock AS
 SELECT
     p.product_id,
@@ -601,8 +566,6 @@ FROM products p
 LEFT JOIN inventory_movements im ON im.product_id = p.product_id
 GROUP BY p.product_id, p.catalog_number, p.title;
 
--- Продажи по годам рассчитываются по завершённым заказам.
--- Возвраты учитываются отдельно и вычитаются из количества проданного товара.
 CREATE VIEW v_product_sales_by_year AS
 SELECT
     oi.product_id,
@@ -622,24 +585,19 @@ WHERE o.status = 'completed'
   AND im.movement_type IN ('sale', 'return')
 GROUP BY oi.product_id, p.title, CAST(strftime('%Y', o.completed_at) AS INTEGER);
 
--- ============================================================
 -- 8. НАЧАЛЬНЫЕ СПРАВОЧНЫЕ ДАННЫЕ
--- ============================================================
 
 INSERT INTO roles (role_name, description)
 VALUES
     ('customer', 'Зарегистрированный покупатель'),
     ('employee', 'Сотрудник музыкального магазина');
 
-INSERT INTO media_types (name, description)
+INSERT INTO media_types (media_type_id, name, description)
 VALUES
-    ('CD', 'Компакт-диск'),
-    ('DVD', 'Цифровой видеодиск'),
-    ('Винил', 'Виниловая грампластинка'),
-    ('Кассета', 'Аудиокассета');
+    (1, 'CD', 'Компакт-диск'),
+    (2, 'Vinyl', 'Виниловая пластинка'),
+    (3, 'DVD', 'DVD-диск'),
+    (4, 'Кассета', 'Аудиокассета');
 
 COMMIT;
 
--- ============================================================
--- КОНЕЦ СХЕМЫ
--- ============================================================

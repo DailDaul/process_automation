@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Музыкальные произведения — MashUp{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <p class="eyebrow">МУЗЫКАЛЬНЫЙ ФОНД</p>
+  <h1>Музыкальные <em>произведения.</em></h1>
+  <p>Справочник произведений, для которых можно регистрировать отдельные исполнения разными ансамблями.</p>
+  <div class="admin-actions">
+    <a class="button" href="{{ url_for('admin.composition_new') }}">＋ Добавить произведение</a>
+    <a class="button button-outline" href="{{ url_for('admin.performances') }}">Исполнения</a>
+    <a class="button button-outline" href="{{ url_for('admin.dashboard') }}">Назад в управление</a>
+  </div>
+</section>
+<section class="section">
+  <div class="admin-table">
+    <div class="admin-row composition-row"><b>Произведение</b><b>Год создания</b><b>Исполнений</b><b>Действия</b></div>
+    {% for item in compositions %}
+      <div class="admin-row composition-row">
+        <strong>{{ item.title }}</strong><span>{{ item.creation_year or '—' }}</span>
+        <span>{{ item.performances_count }}</span>
+        <a class="text-link" href="{{ url_for('admin.composition_edit', composition_id=item.composition_id) }}">Изменить</a>
+      </div>
+    {% else %}
+      <div class="empty-state"><h3>Произведений пока нет</h3><p>Добавьте первое произведение, чтобы затем зарегистрировать его исполнения.</p></div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

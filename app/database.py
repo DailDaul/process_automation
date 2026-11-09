@@ -1,4 +1,4 @@
-"""Database access and safe, repeatable SQLite initialization for MashUp."""
+
 from pathlib import Path
 import re
 
@@ -38,7 +38,6 @@ def close_db(error=None):
 
 
 def _prepare_schema_sql(schema_sql):
-    """Remove SQL seed duplicates and make table/index creation repeatable."""
     schema_sql = re.sub(
         r"(?is)^\s*INSERT\s+INTO\s+roles\b.*?;\s*", "",
         schema_sql, flags=re.MULTILINE,
@@ -73,7 +72,6 @@ def _schema_object_names(schema_sql, object_type):
 
 
 def _refresh_views_and_triggers(raw_connection, schema_sql):
-    """Refresh derived schema objects without deleting tables or user data."""
     views = _schema_object_names(schema_sql, 'VIEW')
     triggers = _schema_object_names(schema_sql, 'TRIGGER')
 
@@ -88,14 +86,16 @@ def _refresh_views_and_triggers(raw_connection, schema_sql):
 
 
 def _seed_reference_data(connection):
-    """Insert reference rows idempotently; demo rows only in an empty database."""
     connection.exec_driver_sql(
         "INSERT OR IGNORE INTO roles(role_id, role_name, description) VALUES "
         "(1,'customer','Покупатель'),(2,'employee','Сотрудник магазина')"
     )
     connection.exec_driver_sql(
         "INSERT OR IGNORE INTO media_types(media_type_id,name,description) VALUES "
-        "(1,'CD','Компакт-диск'),(2,'Vinyl','Виниловая пластинка'),(3,'DVD','DVD-диск')"
+        "(1,'CD','Компакт-диск'),"
+        "(2,'Vinyl','Виниловая пластинка'),"
+        "(3,'DVD','DVD-диск'),"
+        "(4,'Кассета','Аудиокассета')"
     )
 
     existing_data = connection.exec_driver_sql(

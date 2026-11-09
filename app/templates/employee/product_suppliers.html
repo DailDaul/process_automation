@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Поставщики издания — MashUp{% endblock %}
+{% block content %}
+<section class="page-head compact">
+    <p class="eyebrow">ЗАКУПКИ И УПРАВЛЕНИЕ АССОРТИМЕНТОМ</p>
+    <h1>Поставщики <em>издания.</em></h1>
+    <p>{{ product.title }} · {{ product.catalog_number }} · {{ product.media_name }}</p>
+    <div class="admin-actions">
+        <a class="button button-outline" href="{{ url_for('admin.product_edit', product_id=product.product_id) }}">К редактированию товара</a>
+        <a class="button button-outline" href="{{ url_for('admin.products') }}">К каталогу товаров</a>
+    </div>
+</section>
+<section class="section">
+    <h2>Связанные поставщики</h2>
+    <div class="admin-table">
+        {% for item in supplier_links %}
+        <div class="admin-row">
+            <span><strong>{{ item.name }}</strong><small>{{ item.country or 'Страна не указана' }}{% if item.supplier_catalog_number %} · № {{ item.supplier_catalog_number }}{% endif %}</small></span>
+            <span><strong>{{ money(item.wholesale_price) if item.wholesale_price is not none else 'Цена не задана' }}</strong><small>{% if item.valid_from %}Действует с {{ item.valid_from }}{% endif %}</small></span>
+            <span>{% if item.is_preferred %}<strong>Основной поставщик</strong>{% else %}Дополнительный поставщик{% endif %}</span>
+            {% if not item.is_preferred %}
+            <form method="post">
+                <input type="hidden" name="action" value="preferred">
+                <input type="hidden" name="supplier_company_id" value="{{ item.company_id }}">
+                <button class="small-button" type="submit">Сделать основным</button>
+            </form>
+            {% endif %}
+            <form method="post" class="inline-price-form">
+                <input type="hidden" name="action" value="price">
+                <input type="hidden" name="supplier_company_id" value="{{ item.company_id }}">
+                <label>Новая цена, ₽<input type="number" name="wholesale_price" min="0" step="0.01" required placeholder="Например, 850.00"></label>
+                <button class="small-button" type="submit">Сохранить цену</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="empty-state"><h3>Поставщики не привязаны</h3><p>Добавь поставщика, чтобы зафиксировать закупочную цену этого издания.</p></div>
+        {% endfor %}
+    </div>
+</section>
+<section class="section">
+    <h2>Добавить поставщика к изданию</h2>
+    {% if available_suppliers %}
+    <form class="form-card" method="post">
+        <input type="hidden" name="action" value="add">
+        <label>Поставщик<select name="supplier_company_id" required><option value="">Выберите организацию</option>{% for item in available_suppliers %}<option value="{{ item.company_id }}">{{ item.name }}</option>{% endfor %}</select></label>
+        <label>Каталожный номер у поставщика<input name="supplier_catalog_number" maxlength="100" placeholder="Необязательно"></label>
+        <div class="form-grid">
+            <label>Начальная закупочная цена, ₽<input type="number" name="wholesale_price" min="0" step="0.01" placeholder="Необязательно"></label>
+            <label class="checkbox-label"><input type="checkbox" name="is_preferred" value="1"> Основной поставщик</label>
+        </div>
+        <button class="button" type="submit">Привязать поставщика</button>
+    </form>
+    {% else %}
+    <div class="empty-state"><p>Нет свободных поставщиков. Сначала добавь новую организацию в разделе «Поставщики».</p><a class="button" href="{{ url_for('admin.supplier_new') }}">Добавить поставщика</a></div>
+    {% endif %}
+</section>
+<section class="section">
+    <h2>История закупочных цен</h2>
+    <div class="admin-table">
+        {% for item in price_history %}
+        <div class="admin-row">
+            <strong>{{ item.name }}</strong>
+            <span>{{ money(item.wholesale_price) }}</span>
+            <span>{{ item.valid_from }} — {{ item.valid_to or 'по настоящее время' }}</span>
+        </div>
+        {% else %}
+        <p>История закупочных цен пока пуста.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

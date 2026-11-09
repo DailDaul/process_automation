@@ -8,7 +8,7 @@
     <p class="eyebrow">УПРАВЛЕНИЕ АССОРТИМЕНТОМ</p>
     <h1>Каталог <em>товаров.</em></h1>
     
-    <a class="button" href="{{ url_for('admin.product_new') }}">＋ Добавить товар</a>
+    <div class="admin-actions"><a class="button" href="{{ url_for('admin.product_new') }}">＋ Добавить товар</a><a class="button button-outline" href="{{ url_for('admin.suppliers') }}">Поставщики</a></div>
 </section>
 
 <section class="section">
@@ -20,9 +20,11 @@
             <strong>
                 {{ money(p.retail_price) if p.retail_price is not none else '—' }} · {{ p.stock }} шт.
             </strong>
-            <a class="text-link" href="{{ url_for('admin.product_edit', product_id=p.product_id) }}">
-                Редактировать ↗
-            </a>
+            <div class="ensemble-actions">
+                <a class="text-link" href="{{ url_for('admin.product_edit', product_id=p.product_id) }}">Редактировать ↗</a>
+                <a class="text-link" href="{{ url_for('admin.product_tracks', product_id=p.product_id) }}">Состав издания / трек-лист</a>
+                <a class="text-link" href="{{ url_for('admin.product_suppliers', product_id=p.product_id) }}">Поставщики и закупочные цены</a>
+            </div>
         </div>
         {% else %}
         <p>Каталог пуст.</p>

@@ -1,4 +1,3 @@
-<!doctype html>
 {% extends 'base.html' %}
 
 {% block title %}Управление — MashUp{% endblock %}
@@ -12,6 +11,11 @@
         <a class="button" href="{{ url_for('admin.product_new') }}">＋ Добавить товар</a>
         <a class="button button-outline" href="{{ url_for('admin.products') }}">Каталог товаров</a>
         <a class="button button-outline" href="{{ url_for('admin.statistics') }}">Статистика</a>
+        <a class="button button-outline" href="{{ url_for('catalog.index') }}">Каталог CD по ансамблям</a>
+        <a class="button button-outline" href="{{ url_for('admin.ensembles') }}">Музыкальные ансамбли</a>
+        <a class="button button-outline" href="{{ url_for('admin.compositions') }}">Музыкальные произведения</a>
+        <a class="button button-outline" href="{{ url_for('admin.performances') }}">Исполнения</a>
+        <a class="button button-outline" href="{{ url_for('admin.suppliers') }}">Поставщики</a>
     </div>
 </section>
 

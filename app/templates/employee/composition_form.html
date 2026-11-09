@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}{% if composition %}Редактирование произведения{% else %}Новое произведение{% endif %} — MashUp{% endblock %}
+{% block content %}
+<section class="auth-wrap wide">
+  <p class="eyebrow">МУЗЫКАЛЬНЫЙ ФОНД</p>
+  <h1>{% if composition %}Изменить <em>произведение.</em>{% else %}Новое <em>произведение.</em>{% endif %}</h1>
+  <form class="form-card" method="post">
+    <label>Название произведения<input name="title" maxlength="250" required value="{{ request.form.get('title', composition.title if composition else '') }}" placeholder="Например, Симфония № 5"></label>
+    <label>Год создания<input type="number" name="creation_year" min="1000" max="2100" value="{{ request.form.get('creation_year', composition.creation_year if composition and composition.creation_year else '') }}"></label>
+    <label>Описание<textarea name="description" rows="5">{{ request.form.get('description', composition.description if composition and composition.description else '') }}</textarea></label>
+    <button class="button" type="submit">Сохранить</button>
+    <p><a href="{{ url_for('admin.compositions') }}">Вернуться к списку произведений</a></p>
+  </form>
+</section>
+{% endblock %}

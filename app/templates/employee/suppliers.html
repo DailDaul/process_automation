@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Поставщики — MashUp{% endblock %}
+{% block content %}
+<section class="page-head compact">
+    <p class="eyebrow">ЗАКУПКИ И КОНТРАГЕНТЫ</p>
+    <h1>Поставщики <em>изданий.</em></h1>
+    <div class="admin-actions">
+        <a class="button" href="{{ url_for('admin.supplier_new') }}">＋ Добавить поставщика</a>
+        <a class="button button-outline" href="{{ url_for('admin.products') }}">К каталогу товаров</a>
+    </div>
+</section>
+<section class="section">
+    <div class="admin-table">
+        {% for item in suppliers %}
+        <div class="admin-row">
+            <span><strong>{{ item.name }}</strong><small>{{ item.country or 'Страна не указана' }} · {{ item.products_count }} изданий</small></span>
+            <span>{{ item.phone or 'Телефон не указан' }}</span>
+            <span>{{ item.address or 'Адрес не указан' }}</span>
+            <div class="ensemble-actions">
+                <a class="text-link" href="{{ url_for('admin.supplier_edit', supplier_id=item.company_id) }}">Редактировать ↗</a>
+                {% if item.products_count == 0 %}
+                <form method="post" action="{{ url_for('admin.supplier_delete', supplier_id=item.company_id) }}"
+                      onsubmit="return confirm('Удалить поставщика {{ item.name|e }}?');">
+                    <button class="small-button button-danger" type="submit">Удалить</button>
+                </form>
+                {% else %}
+                <small class="muted">Есть связанные издания</small>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state"><h3>Поставщиков пока нет</h3><p>Добавь первую организацию, у которой магазин может закупать издания.</p></div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

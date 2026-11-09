@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{% if ensemble %}Редактирование ансамбля{% else %}Новый ансамбль{% endif %} — MashUp{% endblock %}
+{% block content %}
+<section class="auth-wrap wide">
+  <p class="eyebrow">СПРАВОЧНИК МУЗЫКАЛЬНЫХ КОЛЛЕКТИВОВ</p>
+  <h1>{% if ensemble %}Изменить <em>ансамбль.</em>{% else %}Новый <em>ансамбль.</em>{% endif %}</h1>
+  <form class="form-card" method="post">
+    <label>Название ансамбля<input name="name" maxlength="200" required value="{{ request.form.get('name', ensemble.name if ensemble else '') }}" placeholder="Например, Государственный симфонический оркестр"></label>
+    <label>Тип ансамбля<input name="ensemble_type" maxlength="100" required value="{{ request.form.get('ensemble_type', ensemble.ensemble_type if ensemble else '') }}" placeholder="Оркестр, квартет, джаз-бэнд"></label>
+    <label>Год основания<input type="number" name="founded_year" min="1000" max="2100" value="{{ request.form.get('founded_year', ensemble.founded_year if ensemble and ensemble.founded_year else '') }}"></label>
+    <label>Год прекращения деятельности<input type="number" name="disbanded_year" min="1000" max="2100" value="{{ request.form.get('disbanded_year', ensemble.disbanded_year if ensemble and ensemble.disbanded_year else '') }}"><small class="muted">Оставьте пустым, если ансамбль продолжает существовать.</small></label>
+    <label>Описание<textarea name="description" rows="5" maxlength="5000">{{ request.form.get('description', ensemble.description if ensemble and ensemble.description else '') }}</textarea></label>
+    <button class="button" type="submit">Сохранить</button>
+    <p><a href="{{ url_for('admin.ensembles') }}">Вернуться к списку ансамблей</a></p>
+  </form>
+</section>
+{% endblock %}

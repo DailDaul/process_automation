@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}{% if supplier %}Редактирование поставщика{% else %}Новый поставщик{% endif %} — MashUp{% endblock %}
+{% block content %}
+<section class="page-head compact">
+    <p class="eyebrow">ЗАКУПКИ И КОНТРАГЕНТЫ</p>
+    <h1>{% if supplier %}Данные <em>поставщика.</em>{% else %}Новый <em>поставщик.</em>{% endif %}</h1>
+    <a class="text-link" href="{{ url_for('admin.suppliers') }}">← К списку поставщиков</a>
+</section>
+<section class="section">
+    <form class="form-card" method="post">
+        <label>Название организации<input name="name" maxlength="200" required value="{{ request.form.get('name', supplier.name if supplier else '') }}"></label>
+        <div class="form-grid">
+            <label>Страна<input name="country" maxlength="100" value="{{ request.form.get('country', supplier.country if supplier else '') }}"></label>
+            <label>Телефон<input name="phone" maxlength="30" value="{{ request.form.get('phone', supplier.phone if supplier else '') }}"></label>
+        </div>
+        <label>Адрес<input name="address" value="{{ request.form.get('address', supplier.address if supplier else '') }}"></label>
+        <label>Сайт<input name="website" maxlength="255" type="url" placeholder="https://example.com" value="{{ request.form.get('website', supplier.website if supplier else '') }}"></label>
+        <button class="button" type="submit">{% if supplier %}Сохранить изменения{% else %}Добавить поставщика{% endif %}</button>
+    </form>
+</section>
+{% endblock %}
