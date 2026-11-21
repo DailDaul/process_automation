@@ -6,6 +6,7 @@ from app.database import get_db
 
 bp = Blueprint('main', __name__)
 
+# Laboratornaya 5x
 # Инициализация клиента Redis.
 # Хост и порт берутся из переменных окружения (они заданы в docker-compose.yaml).
 # Если Redis недоступен, приложение продолжит работать, просто счётчик не будет увеличиваться.
