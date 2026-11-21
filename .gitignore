@@ -35,3 +35,12 @@ instance/*
 # OS
 .DS_Store
 Thumbs.db
+
+# Игнорировать данные Redis
+redis_data/
+
+# Игнорировать файлы базы данных SQLite
+instance/
+*.db
+*.db-shm
+*.db-wal
